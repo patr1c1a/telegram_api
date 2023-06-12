@@ -12,6 +12,24 @@ services:
       - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
-
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready --username postgres --dbname=telegram' ]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+  backend:
+    build:
+      context: ./
+    ports:
+      - '8000:8000'
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: telegram
+    depends_on:
+      db:
+        condition: service_healthy
 volumes:
   db-data:
